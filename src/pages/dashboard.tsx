@@ -102,7 +102,7 @@ const Dashboard: Component = () => {
     try {
       const userId = getUserId();
       
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/user/${userId}`);
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/user/${userId}`);
       
       if (response.ok) {
         const result = await response.json();
@@ -372,7 +372,7 @@ const Dashboard: Component = () => {
     try {
       const userId = getUserId();
       
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/dashboard/${userId}`, {
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/dashboard/${userId}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
