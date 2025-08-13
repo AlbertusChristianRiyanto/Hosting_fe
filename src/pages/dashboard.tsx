@@ -73,19 +73,17 @@ const Dashboard: Component = () => {
 
   // Function to get username
   const getUserName = () => {
+    // Ambil dari state userData (hasil fetch dari backend)
     const user = userData();
-    
     if (user && user.username) {
       return user.username;
     }
-    
-    // Try localStorage
+
+    // Coba ambil dari localStorage 'user' (bukan 'username')
     try {
-      const storedUserData = localStorage.getItem('username');
-      
+      const storedUserData = localStorage.getItem('user');
       if (storedUserData) {
         const parsedUser = JSON.parse(storedUserData);
-        
         if (parsedUser && parsedUser.username) {
           return parsedUser.username;
         }
@@ -93,7 +91,8 @@ const Dashboard: Component = () => {
     } catch (error) {
       // Handle error silently
     }
-    
+
+    // Fallback
     return 'Test User';
   };
 
