@@ -81,7 +81,7 @@ const Dashboard: Component = () => {
     
     // Try localStorage
     try {
-      const storedUserData = localStorage.getItem('user');
+      const storedUserData = localStorage.getItem('username');
       
       if (storedUserData) {
         const parsedUser = JSON.parse(storedUserData);
