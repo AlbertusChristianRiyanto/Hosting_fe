@@ -1,4 +1,11 @@
 import { Component, createSignal, onMount, For, createEffect, batch, onCleanup } from 'solid-js';
+// ...existing code...
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { GridOptions } from 'ag-grid-community';
+// AG Grid Vanilla: akses Grid dari window.agGrid
+// @ts-ignore
+const Grid = window.agGrid?.Grid;
 import tambahTransaksiIcon from '../assets/tambah.png';
 import riwayatIcon from '../assets/riwayat.png';
 import dashboardIcon from '../assets/dashboard.png';
@@ -856,44 +863,35 @@ const Dashboard: Component = () => {
             <div class="bg-white shadow rounded p-6 mx-4 mb-4">
               <h2 class="text-center font-bold mb-6 text-lg">STATISTIK PENGELUARAN</h2>
               <div class="overflow-x-auto">
-                <table class="w-full text-center border-collapse">
-                  <thead>
-                    <tr class="border-b-2 border-gray-200">
-                      <th class="py-3 px-4 font-bold text-gray-700">KATEGORI</th>
-                      <th class="py-3 px-4 font-bold text-gray-700">HARIAN</th>
-                      <th class="py-3 px-4 font-bold text-gray-700">BULANAN</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50">
-                      <td class="py-3 px-4 font-semibold text-gray-800">Total</td>
-                      <td class="py-3 px-4 text-blue-600 font-bold">
-                        {data() ? formatCurrency(data()!.total_hari_ini) : 'Rp 0'}
-                      </td>
-                      <td class="py-3 px-4 text-blue-600 font-bold">
-                        {data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0'}
-                      </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                      <td class="py-3 px-4 font-semibold text-gray-800">Tertinggi</td>
-                      <td class="py-3 px-4 text-green-600 font-bold">
-                        {data() ? formatCurrency(data()!.tertinggi_hari_ini) : 'Rp 0'}
-                      </td>
-                      <td class="py-3 px-4 text-green-600 font-bold">
-                        {data() ? formatCurrency(data()!.tertinggi_bulan_ini) : 'Rp 0'}
-                      </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                      <td class="py-3 px-4 font-semibold text-gray-800">Terendah</td>
-                      <td class="py-3 px-4 text-orange-600 font-bold">
-                        {data() ? formatCurrency(data()!.terendah_hari_ini) : 'Rp 0'}
-                      </td>
-                      <td class="py-3 px-4 text-orange-600 font-bold">
-                        {data() ? formatCurrency(data()!.terendah_bulan_ini) : 'Rp 0'}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                  <div class="ag-theme-alpine" style="height: 200px; width: 100%;" ref={el => {
+                    const gridOptions: GridOptions = {
+                      columnDefs: [
+                        { headerName: 'KATEGORI', field: 'kategori', flex: 1 },
+                        { headerName: 'HARIAN', field: 'harian', flex: 1 },
+                        { headerName: 'BULANAN', field: 'bulanan', flex: 1 },
+                      ],
+                      rowData: [
+                        {
+                          kategori: 'Total',
+                          harian: data() ? formatCurrency(data()!.total_hari_ini) : 'Rp 0',
+                          bulanan: data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0',
+                        },
+                        {
+                          kategori: 'Tertinggi',
+                          harian: data() ? formatCurrency(data()!.tertinggi_hari_ini) : 'Rp 0',
+                          bulanan: data() ? formatCurrency(data()!.tertinggi_bulan_ini) : 'Rp 0',
+                        },
+                        {
+                          kategori: 'Terendah',
+                          harian: data() ? formatCurrency(data()!.terendah_hari_ini) : 'Rp 0',
+                          bulanan: data() ? formatCurrency(data()!.terendah_bulan_ini) : 'Rp 0',
+                        },
+                      ],
+                      domLayout: 'autoHeight',
+                    };
+                    const grid = new Grid(el, gridOptions);
+                    onCleanup(() => grid.destroy());
+                  }}></div>
               </div>
               
               {/* Quick stats cards */}

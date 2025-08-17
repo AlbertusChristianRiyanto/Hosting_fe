@@ -1,4 +1,9 @@
-import { createSignal, onMount, For } from "solid-js";
+import { createSignal, onMount, For, onCleanup } from "solid-js";
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { GridOptions } from 'ag-grid-community';
+// @ts-ignore
+const Grid = window.agGrid?.Grid;
 import tambahTransaksiIcon from '../assets/tambah.png';
 import riwayatIcon from '../assets/riwayat.png';
 import dashboardIcon from '../assets/dashboard.png';
@@ -419,61 +424,47 @@ const Riwayat = () => {
 
             {/* Table */}
             {!loading() && (
-              <div class="overflow-x-auto">
-                <table class="min-w-full text-xs md:text-sm">
-                  <thead>
-                    <tr class="text-gray-400 border-b">
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Tanggal</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Kategori</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Deskripsi</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Jumlah</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Tanggal Input</th>
-                      <th class="py-2 text-right font-semibold whitespace-nowrap">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transaksiList().length === 0 ? (
-                      <tr>
-                        <td colspan="6" class="py-8 text-center text-gray-500">
-                          No transactions found. Start by adding your first transaction.
-                        </td>
-                      </tr>
-                    ) : (
-                      <For each={paginatedData()}>
-                        {(item) => (
-                          <tr class="border-b hover:bg-gray-50">
-                            <td class="py-3 font-medium whitespace-nowrap">{formatDate(item.tanggal)}</td>
-                            <td class="py-3 text-gray-600 max-w-xs truncate">{item.kategori_nama}</td>
-                            <td class="py-3 text-gray-600 max-w-xs truncate">{item.deskripsi}</td>
-                            <td class="py-3 font-medium text-green-600">{formatCurrency(item.jumlah)}</td>
-                            <td class="py-3 text-gray-500 whitespace-nowrap">{formatDate(item.created_at || item.tanggal)}</td>
-                            <td class="py-3 text-right flex gap-2 justify-end">
-                              <button 
-                                class="bg-[#23243A] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm disabled:opacity-50"
-                                disabled={loading()}
-                                onClick={() => {
-                                  // You can implement edit functionality here
-                                  // For now, we'll just show an alert
-                                  alert('Edit functionality can be implemented based on your needs');
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                class="bg-[#FF4B4B] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm disabled:opacity-50"
-                                disabled={loading()}
-                                onClick={() => handleDelete(item.id)}
-                              >
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        )}
-                      </For>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                <div class="ag-theme-alpine" style="height: 400px; width: 100%;" ref={el => {
+                  const gridOptions: GridOptions = {
+                    columnDefs: [
+                      { headerName: 'Tanggal', field: 'tanggal', flex: 1, valueFormatter: params => formatDate(params.value) },
+                      { headerName: 'Kategori', field: 'kategori_nama', flex: 1 },
+                      { headerName: 'Deskripsi', field: 'deskripsi', flex: 1 },
+                      { headerName: 'Jumlah', field: 'jumlah', flex: 1, valueFormatter: params => formatCurrency(params.value) },
+                      { headerName: 'Tanggal Input', field: 'created_at', flex: 1, valueFormatter: params => formatDate(params.value || params.data.tanggal) },
+                      {
+                        headerName: 'Actions',
+                        field: 'actions',
+                        flex: 1,
+                        cellRenderer: (params: any) => {
+                          const eDiv = document.createElement('div');
+                          eDiv.style.display = 'flex';
+                          eDiv.style.gap = '8px';
+                          // Edit button
+                          const editBtn = document.createElement('button');
+                          editBtn.textContent = 'Edit';
+                          editBtn.className = 'bg-[#23243A] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm';
+                          editBtn.onclick = () => alert('Edit functionality can be implemented based on your needs');
+                          // Delete button
+                          const delBtn = document.createElement('button');
+                          delBtn.textContent = 'Delete';
+                          delBtn.className = 'bg-[#FF4B4B] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm';
+                          delBtn.onclick = () => handleDelete(params.data.id);
+                          eDiv.appendChild(editBtn);
+                          eDiv.appendChild(delBtn);
+                          return eDiv;
+                        }
+                      },
+                    ],
+                    rowData: paginatedData(),
+                    domLayout: 'autoHeight',
+                    overlayNoRowsTemplate: '<span style="color: gray; padding: 2rem; display: block; text-align: center;">No transactions found. Start by adding your first transaction.</span>',
+                  };
+                  if (Grid) {
+                    const grid = new Grid(el, gridOptions);
+                    onCleanup(() => grid.destroy());
+                  }
+                }}></div>
             )}
 
             {/* Pagination */}
