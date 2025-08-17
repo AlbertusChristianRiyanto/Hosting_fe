@@ -1,9 +1,4 @@
-import { createSignal, onMount, For, onCleanup } from "solid-js";
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { GridOptions } from 'ag-grid-community';
-// @ts-ignore
-const Grid = window.agGrid?.Grid;
+import { createSignal, onMount, For } from "solid-js";
 import tambahTransaksiIcon from '../assets/tambah.png';
 import riwayatIcon from '../assets/riwayat.png';
 import dashboardIcon from '../assets/dashboard.png';
@@ -424,47 +419,57 @@ const Riwayat = () => {
 
             {/* Table */}
             {!loading() && (
-                <div class="ag-theme-alpine" style="height: 400px; width: 100%;" ref={el => {
-                  const gridOptions: GridOptions = {
-                    columnDefs: [
-                      { headerName: 'Tanggal', field: 'tanggal', flex: 1, valueFormatter: params => formatDate(params.value) },
-                      { headerName: 'Kategori', field: 'kategori_nama', flex: 1 },
-                      { headerName: 'Deskripsi', field: 'deskripsi', flex: 1 },
-                      { headerName: 'Jumlah', field: 'jumlah', flex: 1, valueFormatter: params => formatCurrency(params.value) },
-                      { headerName: 'Tanggal Input', field: 'created_at', flex: 1, valueFormatter: params => formatDate(params.value || params.data.tanggal) },
-                      {
-                        headerName: 'Actions',
-                        field: 'actions',
-                        flex: 1,
-                        cellRenderer: (params: any) => {
-                          const eDiv = document.createElement('div');
-                          eDiv.style.display = 'flex';
-                          eDiv.style.gap = '8px';
-                          // Edit button
-                          const editBtn = document.createElement('button');
-                          editBtn.textContent = 'Edit';
-                          editBtn.className = 'bg-[#23243A] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm';
-                          editBtn.onclick = () => alert('Edit functionality can be implemented based on your needs');
-                          // Delete button
-                          const delBtn = document.createElement('button');
-                          delBtn.textContent = 'Delete';
-                          delBtn.className = 'bg-[#FF4B4B] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm';
-                          delBtn.onclick = () => handleDelete(params.data.id);
-                          eDiv.appendChild(editBtn);
-                          eDiv.appendChild(delBtn);
-                          return eDiv;
-                        }
-                      },
-                    ],
-                    rowData: paginatedData(),
-                    domLayout: 'autoHeight',
-                    overlayNoRowsTemplate: '<span style="color: gray; padding: 2rem; display: block; text-align: center;">No transactions found. Start by adding your first transaction.</span>',
-                  };
-                  if (Grid) {
-                    const grid = new Grid(el, gridOptions);
-                    onCleanup(() => grid.destroy());
-                  }
-                }}></div>
+              <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr class="bg-gray-50">
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Tanggal</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Kategori</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Deskripsi</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Jumlah</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Tanggal Input</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData().length > 0 ? (
+                      <For each={paginatedData()}>
+                        {(transaksi) => (
+                          <tr class="hover:bg-gray-50">
+                            <td class="border border-gray-300 px-4 py-2">{formatDate(transaksi.tanggal)}</td>
+                            <td class="border border-gray-300 px-4 py-2">{transaksi.kategori_nama}</td>
+                            <td class="border border-gray-300 px-4 py-2">{transaksi.deskripsi}</td>
+                            <td class="border border-gray-300 px-4 py-2">{formatCurrency(transaksi.jumlah)}</td>
+                            <td class="border border-gray-300 px-4 py-2">{formatDate(transaksi.created_at || transaksi.tanggal)}</td>
+                            <td class="border border-gray-300 px-4 py-2">
+                              <div class="flex gap-2">
+                                <button 
+                                  class="bg-[#23243A] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm"
+                                  onClick={() => alert('Edit functionality can be implemented based on your needs')}
+                                >
+                                  Edit
+                                </button>
+                                <button 
+                                  class="bg-[#FF4B4B] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm"
+                                  onClick={() => handleDelete(transaksi.id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </For>
+                    ) : (
+                      <tr>
+                        <td colspan="6" class="border border-gray-300 px-4 py-8 text-center text-gray-500">
+                          No transactions found. Start by adding your first transaction.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             )}
 
             {/* Pagination */}
