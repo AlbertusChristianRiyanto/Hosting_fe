@@ -1,11 +1,7 @@
 import { Component, createSignal, onMount, For, createEffect, batch, onCleanup } from 'solid-js';
-// ...existing code...
+import { createGrid, GridOptions } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import { GridOptions } from 'ag-grid-community';
-// AG Grid Vanilla: akses Grid dari window.agGrid
-// @ts-ignore
-const Grid = window.agGrid?.Grid;
 import tambahTransaksiIcon from '../assets/tambah.png';
 import riwayatIcon from '../assets/riwayat.png';
 import dashboardIcon from '../assets/dashboard.png';
@@ -889,8 +885,8 @@ const Dashboard: Component = () => {
                       ],
                       domLayout: 'autoHeight',
                     };
-                    const grid = new Grid(el, gridOptions);
-                    onCleanup(() => grid.destroy());
+                    const gridApi = createGrid(el, gridOptions);
+                    onCleanup(() => gridApi?.destroy());
                   }}></div>
               </div>
               
