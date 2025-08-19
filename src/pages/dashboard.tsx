@@ -694,8 +694,8 @@ const Dashboard: Component = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${!isMobile() ? (sidebarOpen() ? 'lg:ml-60' : 'lg:ml-20') : 'ml-0'}`}>
-        <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 bg-white px-4 sm:px-6 lg:px-8 py-3 sm:py-2 shadow-sm h-auto sm:h-16 gap-3 sm:gap-4">
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${!isMobile() ? (sidebarOpen() ? 'lg:ml-60' : 'lg:ml-20') : 'ml-0'} pt-0`}>
+        <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 bg-white px-4 sm:px-6 lg:px-8 py-3 sm:py-4 shadow-sm min-h-[64px] gap-3 sm:gap-4 relative z-10">
           <div class="flex items-center gap-2 w-full sm:w-auto">
             {/* Hamburger Menu Button */}
             <button 
@@ -716,6 +716,8 @@ const Dashboard: Component = () => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            
+            <h1 class="text-lg sm:text-xl font-bold text-gray-800 hidden sm:block">DASHBOARD</h1>
           </div>
           
           <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
@@ -762,28 +764,30 @@ const Dashboard: Component = () => {
           </div>
         </header>
 
-        {/* Status Messages - Only errors shown */}
-        {error() && (
-          <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-3 sm:px-4 py-3 rounded mb-4 mx-3 sm:mx-4 shadow-sm">
-            <div class="flex items-start sm:items-center">
-              <svg class="w-5 h-5 mr-3 mt-0.5 sm:mt-0 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-              </svg>
-              <div class="flex-1 min-w-0">
-                <p class="font-bold text-sm sm:text-base">Error</p>
-                <p class="text-xs sm:text-sm">{error()}</p>
+        {/* Main Content Container */}
+        <div class="flex-1 overflow-auto">
+          {/* Status Messages - Only errors shown */}
+          {error() && (
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-3 sm:px-4 py-3 rounded mb-4 mx-3 sm:mx-4 shadow-sm">
+              <div class="flex items-start sm:items-center">
+                <svg class="w-5 h-5 mr-3 mt-0.5 sm:mt-0 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-sm sm:text-base">Error</p>
+                  <p class="text-xs sm:text-sm">{error()}</p>
+                </div>
+              </div>
+              <div class="mt-3 space-x-2">
+                <button 
+                  class="bg-red-600 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-red-700 transition-colors"
+                  onClick={fetchDashboardData}
+                >
+                  Coba Lagi
+                </button>
               </div>
             </div>
-            <div class="mt-3 space-x-2">
-              <button 
-                class="bg-red-600 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-red-700 transition-colors"
-                onClick={fetchDashboardData}
-              >
-                Coba Lagi
-              </button>
-            </div>
-          </div>
-        )}
+          )}
 
         {loading() ? (
           <div class="flex justify-center items-center py-8">
@@ -967,6 +971,7 @@ const Dashboard: Component = () => {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );
