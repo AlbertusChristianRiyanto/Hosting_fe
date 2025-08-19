@@ -344,27 +344,28 @@ const Profile = () => {
       <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
         isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
       }`}>
-        <header class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white px-4 md:px-8 py-2 shadow-sm h-auto md:h-16 gap-4">
-          <div class="flex items-center gap-2">
-            {/* Hamburger Menu Button */}
+        <header class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            {/* Hamburger Menu Button - Mobile */}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen())}
-              class="p-2 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
             >
               <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            {!isMobile() && (
-              <button 
-                onClick={() => setSidebarOpen(!sidebarOpen())}
-                class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden lg:block"
-              >
-                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            )}
+            
+            {/* Hamburger Menu Button - Desktop */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen())}
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden md:block"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
             <h1 class="text-xl font-bold text-gray-800">PROFILE SETTINGS</h1>
           </div>
           <div class="flex items-center gap-4 w-full md:w-auto justify-end">
