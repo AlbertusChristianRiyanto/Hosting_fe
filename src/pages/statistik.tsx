@@ -773,21 +773,25 @@ const Statistik = () => {
                       <div class="bg-white rounded-lg shadow p-4 md:p-6">
                         <h3 class="text-lg font-bold text-[#2f2f4f] mb-4">Rincian per Kategori</h3>
                         <div class="space-y-3">
-                          {statistikData()!.pengeluaran_per_kategori.map((item, index) => (
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                              <div class="flex items-center gap-3">
-                                <span
-                                  class="w-4 h-4 rounded-full flex-shrink-0"
-                                  style={`background-color: ${CATEGORY_COLORS[index % CATEGORY_COLORS.length]};`}
-                                ></span>
-                                <span class="font-medium text-gray-700">{item.kategori_nama}</span>
+                          {(() => {
+                            // Filter kategori yang memiliki pengeluaran > 0, sama seperti di chart
+                            const validCategories = statistikData()!.pengeluaran_per_kategori.filter(item => item.total_pengeluaran > 0);
+                            return validCategories.map((item, index) => (
+                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                  <span
+                                    class="w-4 h-4 rounded-full flex-shrink-0"
+                                    style={`background-color: ${CATEGORY_COLORS[index % CATEGORY_COLORS.length]};`}
+                                  ></span>
+                                  <span class="font-medium text-gray-700">{item.kategori_nama}</span>
+                                </div>
+                                <div class="text-right">
+                                  <div class="font-bold text-gray-900">{formatCurrency(item.total_pengeluaran)}</div>
+                                  <div class="text-sm text-gray-500">({item.persentase.toFixed(1)}%)</div>
+                                </div>
                               </div>
-                              <div class="text-right">
-                                <div class="font-bold text-gray-900">{formatCurrency(item.total_pengeluaran)}</div>
-                                <div class="text-sm text-gray-500">({item.persentase.toFixed(1)}%)</div>
-                              </div>
-                            </div>
-                          ))}
+                            ));
+                          })()}
                         </div>
                       </div>
                     ) : (
