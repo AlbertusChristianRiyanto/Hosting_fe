@@ -62,8 +62,19 @@ const Statistik = () => {
   const [filterApplied, setFilterApplied] = createSignal<any>(null);
   const [currentUserId, setCurrentUserId] = createSignal<string | null>(null);
   const [chartCreated, setChartCreated] = createSignal(false);
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false);
+  const [isMobile, setIsMobile] = createSignal(false);
   const [user] = createSignal<any>(null);
+
+  // Check if screen is mobile size
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  };
 
   // Function to get username
   const getUserName = () => {
@@ -427,7 +438,11 @@ const Statistik = () => {
   // ✅ FIXED: onMount yang lebih sederhana
   onMount(() => {
     console.log('🔄 Component mounted');
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     fetchStatistik();
+    
+    return () => window.removeEventListener('resize', checkMobile);
   });
 
   // ✅ FIXED: createEffect untuk chart creation
@@ -454,8 +469,18 @@ const Statistik = () => {
 
   return (
     <div class="flex min-h-screen bg-[#f8f9fc]">
+      {/* Mobile Overlay */}
+      {isMobile() && sidebarOpen() && (
+        <div 
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
-      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40`}>
+      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${
+        isMobile() && !sidebarOpen() ? '-translate-x-full' : 'translate-x-0'
+      }`}>
         <div class={`${sidebarOpen() ? 'p-6 -ml-2' : 'p-3'} flex items-center ${sidebarOpen() ? '' : 'justify-center'}`}>
           <div class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} flex items-center justify-center`}>
             <img src={saviorLogo} alt="SAVIOR Logo" class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} object-contain`} />
@@ -557,18 +582,30 @@ const Statistik = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen() ? 'ml-60' : 'ml-20'}`}>
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
+      }`}>
         <header class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white px-4 md:px-8 py-2 shadow-sm h-auto md:h-16 gap-4">
           <div class="flex items-center gap-2">
             {/* Hamburger Menu Button */}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen())}
-              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
             >
               <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            {!isMobile() && (
+              <button 
+                onClick={() => setSidebarOpen(!sidebarOpen())}
+                class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden lg:block"
+              >
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            )}
             <h1 class="text-xl font-bold text-gray-800">STATISTIK</h1>
           </div>
           <div class="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -720,11 +757,11 @@ const Statistik = () => {
                 <div class="bg-white rounded-lg shadow p-4 md:p-6">
                   <h3 class="text-lg font-bold text-[#2f2f4f] mb-4">Distribusi Pengeluaran per Kategori</h3>
                   <div class="flex justify-center">
-                    <div class="w-full max-w-md">
+                    <div class="w-full max-w-lg">
                       <div
                         ref={chartDiv}
-                        style="width:100%;height:400px;min-height:400px;"
-                        class="bg-white"
+                        style="width:100%;height:300px;min-height:300px;"
+                        class={`bg-white ${isMobile() ? 'h-72' : 'h-96'}`}
                       ></div>
                       
                       {!hasActualData() && (
@@ -743,22 +780,22 @@ const Statistik = () => {
 
                 {statistikData() && (
                   <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div class="bg-white rounded-lg shadow p-6 text-center">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Total Pengeluaran</h4>
-                        <p class="text-2xl font-bold text-blue-600">
+                        <p class="text-xl sm:text-2xl font-bold text-blue-600">
                           {formatCurrency(statistikData()!.ringkasan.total_pengeluaran)}
                         </p>
                       </div>
-                      <div class="bg-white rounded-lg shadow p-6 text-center">
+                      <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Rata-rata Harian</h4>
-                        <p class="text-2xl font-bold text-green-600">
+                        <p class="text-xl sm:text-2xl font-bold text-green-600">
                           {formatCurrency(Math.round(statistikData()!.ringkasan.rata_rata_harian))}
                         </p>
                       </div>
-                      <div class="bg-white rounded-lg shadow p-6 text-center">
+                      <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center sm:col-span-2 lg:col-span-1">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Total Transaksi</h4>
-                        <p class="text-2xl font-bold text-purple-600">
+                        <p class="text-xl sm:text-2xl font-bold text-purple-600">
                           {statistikData()!.ringkasan.total_transaksi}
                         </p>
                       </div>
