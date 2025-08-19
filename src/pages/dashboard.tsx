@@ -59,18 +59,17 @@ const Dashboard: Component = () => {
   const [error, setError] = createSignal("");
   const [forceUpdate, setForceUpdate] = createSignal(0);
   const [sidebarOpen, setSidebarOpen] = createSignal(false); // Default false for mobile
-  const [isMobile, setIsMobile] = createSignal(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = createSignal(false);
   
   // Reference untuk chart AmCharts
   let chartDiv: HTMLElement | undefined;
   let root: am5.Root | undefined;
   let chart: am5xy.XYChart | undefined;
 
-  // Handle window resize to detect mobile/desktop
-  const handleResize = () => {
-    const mobile = window.innerWidth < 1024;
-    setIsMobile(mobile);
-    if (mobile) {
+  // Check if screen is mobile size
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+    if (window.innerWidth < 768) {
       setSidebarOpen(false);
     } else {
       setSidebarOpen(true);
@@ -78,15 +77,25 @@ const Dashboard: Component = () => {
   };
 
   onMount(() => {
-    // Set initial sidebar state based on screen size
-    setSidebarOpen(!isMobile());
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     
-    // Add resize listener
-    window.addEventListener('resize', handleResize);
+    // Load initial data
+    fetchDashboardData();
+    fetchUserData();
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      if (root) {
+        root.dispose();
+      }
+    };
   });
 
   onCleanup(() => {
-    window.removeEventListener('resize', handleResize);
+    if (root) {
+      root.dispose();
+    }
   });
 
   // Get user ID
@@ -584,15 +593,17 @@ const Dashboard: Component = () => {
   return (
     <div class="flex min-h-screen bg-[#f8f9fc]">
       {/* Mobile Overlay */}
-      {sidebarOpen() && isMobile() && (
+      {isMobile() && sidebarOpen() && (
         <div 
-          class="fixed inset-0 bg-black bg-opacity-50 z-30"
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
-        />
+        ></div>
       )}
       
       {/* Sidebar */}
-      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${isMobile() ? (sidebarOpen() ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'} lg:static lg:translate-x-0`}>
+      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${
+        isMobile() && !sidebarOpen() ? '-translate-x-full' : 'translate-x-0'
+      }`}>
         <div class={`${sidebarOpen() ? 'p-6 -ml-2' : 'p-3'} flex items-center ${sidebarOpen() ? '' : 'justify-center'}`}>
           <div class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} flex items-center justify-center`}>
             <img src={saviorLogo} alt="SAVIOR Logo" class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} object-contain`} />
@@ -694,7 +705,9 @@ const Dashboard: Component = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${!isMobile() ? (sidebarOpen() ? 'lg:ml-60' : 'lg:ml-20') : 'ml-0'} pt-0`}>
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
+      }`}>
         <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 bg-white px-4 sm:px-6 lg:px-8 py-3 sm:py-4 shadow-sm min-h-[64px] gap-3 sm:gap-4 relative z-10">
           <div class="flex items-center gap-2 w-full sm:w-auto">
             {/* Hamburger Menu Button */}
