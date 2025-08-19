@@ -58,10 +58,8 @@ const Statistik = () => {
   const [statistikData, setStatistikData] = createSignal<StatistikResponse | null>(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
-  const [debugInfo, setDebugInfo] = createSignal("");
   const [filterApplied, setFilterApplied] = createSignal<any>(null);
   const [currentUserId, setCurrentUserId] = createSignal<string | null>(null);
-  const [chartCreated, setChartCreated] = createSignal(false);
   const [sidebarOpen, setSidebarOpen] = createSignal(false);
   const [isMobile, setIsMobile] = createSignal(false);
   const [user] = createSignal<any>(null);
@@ -93,7 +91,7 @@ const Statistik = () => {
         }
       }
     } catch (error) {
-      console.error('Error parsing user data:', error);
+      // Error parsing user data
     }
     
     return 'User';
@@ -153,7 +151,6 @@ const Statistik = () => {
 
   const simulateLogin = async () => {
     try {
-      setDebugInfo("🔄 Attempting login simulation...");
       
       const response = await fetch('https://hosting-albertus-production.up.railway.app/signin', {
         method: 'POST',
@@ -169,13 +166,12 @@ const Statistik = () => {
         localStorage.setItem('user_id', loginData.user_id);
         localStorage.setItem('userId', loginData.user_id);
         setCurrentUserId(loginData.user_id);
-        setDebugInfo(`✅ Login successful, saved user_id: ${loginData.user_id}`);
         
         setTimeout(() => fetchStatistik(), 500);
         return loginData.user_id;
       }
     } catch (error) {
-      setDebugInfo(`❌ Login simulation failed: ${error}`);
+      // Login simulation failed
     }
     return null;
   };
@@ -209,7 +205,6 @@ const Statistik = () => {
       }
 
       const apiUrl = buildApiUrl(userId);
-      setDebugInfo(`📊 Fetching data for user: ${userId}`);
       
       const statsResponse = await fetch(apiUrl, {
         method: 'GET',
@@ -227,17 +222,12 @@ const Statistik = () => {
         setStatistikData(statsResult.data);
         setFilterApplied(statsResult.filter_applied);
         
-        const categoryCount = statsResult.data.pengeluaran_per_kategori?.length || 0;
-        const totalSpending = statsResult.data.ringkasan?.total_pengeluaran || 0;
-        
-        setDebugInfo(`✅ Data loaded: ${categoryCount} categories, Total: Rp ${totalSpending.toLocaleString()}, Period: ${statsResult.filter_applied?.start_date} to ${statsResult.filter_applied?.end_date}`);
         setError("");
       } else {
         throw new Error(statsResult.message || "Failed to fetch statistics");
       }
 
     } catch (err) {
-      console.error('❌ Error fetching statistics:', err);
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
           setError("Request timeout. Periksa koneksi server dan coba lagi.");
@@ -249,7 +239,6 @@ const Statistik = () => {
       } else {
         setError("Terjadi kesalahan yang tidak terduga");
       }
-      setDebugInfo(`❌ Fetch failed: ${err}`);
     } finally {
       setLoading(false);
     }
@@ -261,15 +250,8 @@ const Statistik = () => {
     
     // Pastikan chartDiv ada dan data sudah dimuat
     if (!chartDiv || loading() || !data) {
-      console.log('📊 Chart conditions not met:', { 
-        hasChartDiv: !!chartDiv, 
-        loading: loading(), 
-        hasData: !!data 
-      });
       return;
     }
-
-    console.log('📊 Creating chart with data:', data);
 
     // Dispose previous chart
     if (root) {
@@ -345,8 +327,6 @@ const Statistik = () => {
         }];
       }
 
-      console.log('📊 Final chart data:', chartData);
-
       // Set data to series
       series.data.setAll(chartData);
 
@@ -379,12 +359,8 @@ const Statistik = () => {
       series.appear(1000, 100);
       chart.appear(1000, 100);
       
-      setChartCreated(true);
-      console.log('✅ Chart created successfully');
-      
     } catch (err) {
-      console.error('❌ Error creating chart:', err);
-      setDebugInfo(`Chart creation error: ${err}`);
+      // Error creating chart
     }
   };
 
@@ -437,7 +413,6 @@ const Statistik = () => {
 
   // ✅ FIXED: onMount yang lebih sederhana
   onMount(() => {
-    console.log('🔄 Component mounted');
     checkMobile();
     window.addEventListener('resize', checkMobile);
     fetchStatistik();
@@ -452,7 +427,6 @@ const Statistik = () => {
     
     // Hanya buat chart jika data sudah ada dan tidak loading
     if (data && !isLoading && chartDiv) {
-      console.log('📊 Creating chart - data available');
       // Tunggu sedikit untuk memastikan DOM ready
       setTimeout(() => {
         createChart();
@@ -716,13 +690,6 @@ const Statistik = () => {
                 </div>
               )}
             </div>
-
-            {debugInfo() && (
-              <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 text-sm">
-                <strong>Debug Info:</strong> {debugInfo()}
-                {chartCreated() && <span class="ml-2 text-green-600">📊 Chart: Created</span>}
-              </div>
-            )}
 
             {loading() ? (
               <div class="flex justify-center items-center py-8">
