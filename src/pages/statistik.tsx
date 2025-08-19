@@ -41,9 +41,12 @@ interface ApiResponse<T> {
   };
 }
 
-const CATEGORY_COLORS = [
-  '#2563eb', '#4ade80', '#f472b6', '#facc15', '#8b5cf6',
-  '#f97316', '#ef4444', '#06b6d4', '#84cc16', '#d946ef',
+// Warna default AmCharts 5 (sesuai dengan yang digunakan chart)
+const AMCHART_DEFAULT_COLORS = [
+  '#67b7dc', '#7c73e6', '#e67e22', '#f1c40f', '#82ca9d',
+  '#8dd1e1', '#d084d0', '#ffb347', '#67b7dc', '#a4de6c',
+  '#ffc658', '#8884d8', '#82ca9d', '#a4de6c', '#ffc658',
+  '#ffb347', '#8dd1e1', '#d084d0', '#67b7dc', '#7c73e6'
 ];
 
 const MONTH_NAMES = [
@@ -330,11 +333,8 @@ const Statistik = () => {
       // Set data to series
       series.data.setAll(chartData);
 
-      // Set colors
-      const colorSet = am5.ColorSet.new(root, {
-        colors: CATEGORY_COLORS.map(color => am5.color(color))
-      });
-      series.set("colors", colorSet);
+      // Biarkan AmCharts menggunakan warna default-nya
+      // Tidak perlu set custom colors
 
       // Add tooltip
       series.slices.template.set("tooltipText", 
@@ -781,7 +781,7 @@ const Statistik = () => {
                                 <div class="flex items-center gap-3">
                                   <span
                                     class="w-4 h-4 rounded-full flex-shrink-0"
-                                    style={`background-color: ${CATEGORY_COLORS[index % CATEGORY_COLORS.length]};`}
+                                    style={`background-color: ${AMCHART_DEFAULT_COLORS[index % AMCHART_DEFAULT_COLORS.length]};`}
                                   ></span>
                                   <span class="font-medium text-gray-700">{item.kategori_nama}</span>
                                 </div>
